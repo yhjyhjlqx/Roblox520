@@ -1,0 +1,29 @@
+# Roblox 主域名
+www.roblox.com
+web.roblox.com
+api.roblox.com
+auth.roblox.com
+
+# 游戏服务器
+assetgame.roblox.com
+gamejoin.roblox.com
+games.roblox.com
+
+# 聊天和社交
+chat.roblox.com
+friends.roblox.com
+groups.roblox.com
+
+# 经济系统
+economy.roblox.com
+trades.roblox.com
+
+# CDN和资源
+cdn.roblox.com
+setup.roblox.com
+clientsettings.roblox.com
+
+# 防止重定向到腾讯版
+roblox.qq.com
+www.roblox.cn
+roblox.cn
