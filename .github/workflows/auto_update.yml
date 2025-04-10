@@ -2,7 +2,7 @@ name: Roblox520 Auto Update
 
 on:
   schedule:
-    - cron: "0 12 * * *"  # 每天UTC时间12:00运行
+    - cron: "0 */4 * * *"  # 每天UTC时间12:00运行
   workflow_dispatch:      # 允许手动触发
   push:
     branches:
