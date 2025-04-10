@@ -4,7 +4,7 @@
 # 功能: 从GitHub Releases下载最新hosts文件并替换系统hosts
 
 # 配置变量
-REPO_OWNER="yourname"
+REPO_OWNER="yhjyhjlqx"
 REPO_NAME="Roblox520"
 RELEASE_URL="https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest"
 DOWNLOAD_URL="https://github.com/$REPO_OWNER/$REPO_NAME/releases/latest/download/Roblox520_Scripts.zip"
