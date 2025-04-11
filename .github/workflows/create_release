@@ -1,0 +1,92 @@
+name: Create Roblox520 Release
+
+on:
+  push:
+    tags: ['v*']  # 仅当推送v开头的tag时触发
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # 第一步：检出代码（必须最先执行）
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 获取完整git历史
+          ref: ${{ github.ref || 'main' }}
+
+      # 第二步：手动触发时创建临时tag
+      - name: Create temp tag (if manual run)
+        if: github.event_name == 'workflow_dispatch' && !contains(github.ref, 'tags/')
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          TAG_NAME="v0.0.0-manual-${{ github.run_id }}"
+          git tag -a "$TAG_NAME" -m "Temporary tag for manual trigger"
+          git push origin "$TAG_NAME"
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+          echo "Created temp tag: $TAG_NAME"
+
+      # 第三步：准备Roblox专用发布包
+      - name: Prepare Roblox520 package
+        run: |
+          # 创建目录结构
+          mkdir -p release_package/
+          
+          # 复制必要文件（带错误处理）
+          cp -f hosts release_package/ || echo "⚠️ hosts file missing"
+          [ -f scripts/windows_update.ps1 ] && cp scripts/windows_update.ps1 release_package/
+          [ -f scripts/macos_update.sh ] && cp scripts/macos_update.sh release_package/
+          [ -f scripts/linux_update.sh ] && cp scripts/linux_update.sh release_package/
+          
+          # 添加Roblox专用说明文件
+          echo "Roblox520 - 优化Roblox国际版访问" > release_package/README.txt
+          echo "更新日期: $(date)" >> release_package/README.txt
+          
+          # 打包并验证
+          zip -r Roblox520_Scripts.zip release_package/
+          unzip -l Roblox520_Scripts.zip
+          echo "::notice:: Roblox520 package ready"
+
+      # 第四步：发布到GitHub Releases
+      - name: Publish Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            Roblox520_Scripts.zip
+          tag_name: ${{ github.ref_name || env.TAG_NAME || 'v0.0.0-fallback' }}
+          name: Roblox520 ${{ github.ref_name || 'Manual Release' }}
+          body: |
+            ### 🎮 Roblox520 专用发布包
+
+            **功能：**
+            - 解除Roblox国际版访问限制
+            - 防止重定向到腾讯罗布乐思
+            - 自动更新服务器域名
+
+            **包含文件：**
+            - Windows脚本: `windows_update.ps1`
+            - macOS脚本: `macos_update.sh` 
+            - Linux脚本: `linux_update.sh`
+            - 最新Hosts文件: `hosts`
+
+            **使用指南：**
+            1. 下载ZIP包并解压
+            2. 右键运行对应平台脚本
+            3. 遇到问题请提交[Issue](https://github.com/yhjyhjlqx/Roblox520/issues)
+          draft: false
+          prerelease: ${{ !github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 第五步：后置检查
+      - name: Verify release
+        if: always()
+        run: |
+          echo "::group::工作目录结构"
+          ls -R
+          echo "::endgroup::"
+          echo "✅ Roblox520发布流程完成"
